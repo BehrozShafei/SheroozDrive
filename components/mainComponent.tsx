@@ -1,6 +1,20 @@
 import React from "react";
-
-export default function MainComponent() {
+import { FcFolder } from "react-icons/fc";
+export default function MainComponent({ allFolders }) {
+  console.log("allFolders", allFolders);
+  const showFolders = () => {
+    return allFolders.map((item, index) => {
+      return (
+        <div
+          key={item.id}
+          className="flex flex-col w-20 justify-center justify-items-center"
+        >
+          <FcFolder size={70} />
+          <p className="text-center">{item.name}</p>
+        </div>
+      );
+    });
+  };
   return (
     <div className=" bg-gray-100x flex flex-col justify-center sm:pb-12">
       <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-1xl sm:p-20">
@@ -19,7 +33,9 @@ export default function MainComponent() {
               Shared
             </p>
           </div>
-          <div className="p-8">asdas</div>
+          <div className="p-8 col-span-3 bg-indigo-100">
+            <div className="flex flex-row">{showFolders()}</div>
+          </div>
         </div>
       </div>
     </div>
