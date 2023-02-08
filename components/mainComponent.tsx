@@ -2,8 +2,9 @@ import React from "react";
 import { FcFolder } from "react-icons/fc";
 export default function MainComponent({ allFolders }) {
   console.log("allFolders", allFolders);
+  const { folders } = allFolders;
   const showFolders = () => {
-    return allFolders.map((item, index) => {
+    return folders.map((item, index) => {
       return (
         <div
           key={item.id}
