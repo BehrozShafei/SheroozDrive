@@ -26,6 +26,7 @@ export async function getStaticPaths() {
   };
 }
 export default function Home({ allFolders, params }) {
+  console.log("Home", process.env.customKey);
   console.log("params", params);
   const router = useRouter();
   const [toggle, setToggle] = useState(false);
@@ -38,11 +39,16 @@ export default function Home({ allFolders, params }) {
     };
     const axios = require("axios");
     let res = await axios
-      .post("http://localhost:8000/folders", payload)
+      .post(process.env.baseUrl + "/folders", payload)
       .then((response) => console.log("response", response))
       .catch((error) => console.log("error", error));
   }
   if (router.isFallback) return <h1>Loading ....</h1>;
+  const onFolderClick = (item) => {
+    debugger;
+    let route = router.asPath + "/" + item.name;
+    router.replace(route);
+  };
   return (
     <div className="bg-gray-300 m-4 " style={{ height: "100vh" }}>
       <Header />
@@ -91,7 +97,7 @@ export default function Home({ allFolders, params }) {
         </div>
       </div>
       <div className="container mx-auto">
-        <MainComponent allFolders={allFolders} />
+        <MainComponent allFolders={allFolders} onFolderClick={onFolderClick} />
       </div>
     </div>
   );

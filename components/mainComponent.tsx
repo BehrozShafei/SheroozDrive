@@ -1,14 +1,15 @@
 import React from "react";
 import { FcFolder } from "react-icons/fc";
-export default function MainComponent({ allFolders }) {
+export default function MainComponent({ allFolders, onFolderClick }) {
   console.log("allFolders", allFolders);
   const { folders } = allFolders;
   const showFolders = () => {
     return folders.map((item, index) => {
       return (
         <div
+          onClick={() => onFolderClick(item)}
           key={item.id}
-          className="flex flex-col w-20 justify-center justify-items-center"
+          className="flex flex-col w-20 justify-center justify-items-center cursor-pointer hover:text-blue-400"
         >
           <FcFolder size={70} />
           <p className="text-center">{item.name}</p>
@@ -17,7 +18,7 @@ export default function MainComponent({ allFolders }) {
     });
   };
   return (
-    <div className=" bg-gray-100x flex flex-col justify-center sm:pb-12">
+    <div className=" bg-gray-100x flex flex-col justify-center sm:pb-12 ">
       <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-1xl sm:p-20">
         <div className="grid sm:grid-cols-4 gap-4">
           <div className="border-b sm:border-b-0 sm:border-r  p-8 relative flex flex-col ">

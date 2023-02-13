@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
   reactStrictMode: true,
+  env: {
+    baseUrl: "http://localhost:8000",
+  },
   async rewrites() {
     return [
       {
