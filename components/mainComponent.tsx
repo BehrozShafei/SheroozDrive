@@ -4,18 +4,20 @@ export default function MainComponent({ allFolders, onFolderClick }) {
   console.log("allFolders", allFolders);
   const { folders } = allFolders;
   const showFolders = () => {
-    return folders.map((item, index) => {
-      return (
-        <div
-          onClick={() => onFolderClick(item)}
-          key={item.id}
-          className="flex flex-col w-20 justify-center justify-items-center cursor-pointer hover:text-blue-400"
-        >
-          <FcFolder size={70} />
-          <p className="text-center">{item.name}</p>
-        </div>
-      );
-    });
+    if (folders) {
+      return folders.map((item, index) => {
+        return (
+          <div
+            onClick={() => onFolderClick(item)}
+            key={item.id}
+            className="flex flex-col w-20 justify-center justify-items-center cursor-pointer hover:text-blue-400"
+          >
+            <FcFolder size={70} />
+            <p className="text-center">{item.name}</p>
+          </div>
+        );
+      });
+    }
   };
   return (
     <div className=" bg-gray-100x flex flex-col justify-center sm:pb-12 ">

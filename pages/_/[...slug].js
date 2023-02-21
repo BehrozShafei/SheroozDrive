@@ -1,17 +1,27 @@
 import Header from "../../components/header";
 import MainComponent from "../../components/mainComponent";
 import Modal from "../../components/modal";
+import Cookies from "js-cookie";
 import { HiFolder, HiOutlineUpload, HiMenuAlt3 } from "react-icons/hi";
 import { useState } from "react";
+import cookie from "cookie";
 import axios from "axios";
 import { useRouter } from "next/router";
-export const getStaticProps = async ({ params }) => {
+import { getAuthorizationHeader } from "../../utils/getAuthorizationHeader";
+export const getServerSideProps = async ({ params, req }) => {
+  console.log("params1", params);
+  const currentUser = cookie.parse(req.headers.cookie || "").currentUser;
+  let allFolders = [];
   let tempUrl = params.slug.join("/");
-  await console.log("params", params);
-  const res = await fetch(`http://localhost:8000/_/${tempUrl}`);
-  let allFolders = await res.json();
+  try {
+    const res = await axios.get(`http://localhost:8000/_/${tempUrl}`, {
+      headers: { Authorization: `Bearer ${currentUser || ""}` },
+    });
+    allFolders = res.data;
+  } catch (error) {
+    console.error(error);
+  }
 
-  // Sending fetched data to the page component via props.
   return {
     props: {
       allFolders: allFolders,
@@ -19,13 +29,10 @@ export const getStaticProps = async ({ params }) => {
     },
   };
 };
-export async function getStaticPaths() {
-  return {
-    paths: [],
-    fallback: true,
-  };
-}
+
 export default function Home({ allFolders, params }) {
+  debugger;
+  console.log("getAuthorizationHeader()", getAuthorizationHeader());
   console.log("Home", process.env.customKey);
   console.log("params", params);
   const router = useRouter();
@@ -35,20 +42,22 @@ export default function Home({ allFolders, params }) {
   async function createNewFolder() {
     let payload = {
       name: inputValue,
-      ownerId: "63d7e783ada1e272d11be457",
+      parentId: allFolders?.id,
     };
     const axios = require("axios");
     let res = await axios
-      .post(process.env.baseUrl + "/folders", payload)
+      .post(process.env.baseUrl + "/folders", payload, {
+        headers: getAuthorizationHeader(),
+      })
       .then((response) => console.log("response", response))
       .catch((error) => console.log("error", error));
   }
   if (router.isFallback) return <h1>Loading ....</h1>;
   const onFolderClick = (item) => {
-    debugger;
     let route = router.asPath + "/" + item.name;
     router.replace(route);
   };
+
   return (
     <div className="bg-gray-300 m-4 " style={{ height: "100vh" }}>
       <Header />
@@ -81,8 +90,6 @@ export default function Home({ allFolders, params }) {
               toggle={toggle}
               doToggle={() => setToggle((prev) => !prev)}
               title={"Folder Name"}
-              btnText="Submit"
-              btnClick={createNewFolder}
             >
               <div>
                 <input
@@ -91,6 +98,23 @@ export default function Home({ allFolders, params }) {
                     setInputvalue(e.target.value);
                   }}
                 ></input>
+
+                <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
+                  <button
+                    className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button"
+                    // onClick={() => doToggle(true)}
+                  >
+                    Close
+                  </button>
+                  <button
+                    className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button"
+                    onClick={() => createNewFolder()}
+                  >
+                    Submit
+                  </button>
+                </div>
               </div>
             </Modal>
           </div>
