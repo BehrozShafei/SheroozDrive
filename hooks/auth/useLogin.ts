@@ -6,7 +6,6 @@ export const useLogin = () => {
   const login = async (email: string, password: string) => {
     console.log("AuthService().login1", email, password);
     const user: any = await AuthService().login(email, password);
-    debugger;
     if (user) Cookies.set("currentUser", user);
     return user;
   };

@@ -8,12 +8,20 @@ export default function MainComponent({ allFolders, onFolderClick }) {
       return folders.map((item, index) => {
         return (
           <div
-            onClick={() => onFolderClick(item)}
+            onClick={(e) => onFolderClick(e, item)}
+            onContextMenu={(e) => onFolderClick(e, item)}
             key={item.id}
-            className="flex flex-col w-20 justify-center justify-items-center cursor-pointer hover:text-blue-400"
+            className="flex flex-col w-20 justify-center justify-items-center cursor-pointer hover:text-blue-400 group"
           >
             <FcFolder size={70} />
-            <p className="text-center">{item.name}</p>
+            <p className="text-center break-words truncate ...">{item.name}</p>
+            <span
+              className="group-hover:opacity-100 transition-opacity bg-gray-800 px-1 
+              text-sm text-gray-100 rounded-md absolute 
+    -translate-x-1 translate-y-full opacity-0  "
+            >
+              {item.name}
+            </span>
           </div>
         );
       });
@@ -37,7 +45,7 @@ export default function MainComponent({ allFolders, onFolderClick }) {
               Shared
             </p>
           </div>
-          <div className="p-8 col-span-3 bg-indigo-100">
+          <div className="p-8 col-span-3">
             <div className="flex flex-row">{showFolders()}</div>
           </div>
         </div>

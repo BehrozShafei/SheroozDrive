@@ -2,8 +2,9 @@ import Header from "../../components/header";
 import MainComponent from "../../components/mainComponent";
 import Modal from "../../components/modal";
 import Cookies from "js-cookie";
-import { HiFolder, HiOutlineUpload, HiMenuAlt3 } from "react-icons/hi";
-import { useState } from "react";
+import { HiFolder, HiOutlineUpload, HiMenuAlt3, HiTrash } from "react-icons/hi";
+import { BiRename } from "react-icons/bi";
+import { useEffect, useState } from "react";
 import cookie from "cookie";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -26,18 +27,84 @@ export const getServerSideProps = async ({ params, req }) => {
     props: {
       allFolders: allFolders,
       params: tempUrl,
+      currentUser: currentUser,
     },
   };
 };
-
-export default function Home({ allFolders, params }) {
+const RenameModal = ({
+  x,
+  y,
+  currentUser,
+  folderSelected,
+  isSuccessDelete,
+  isRenameClicked,
+}) => {
+  const router = useRouter();
+  const deleteFolder = async () => {
+    try {
+      const res = await axios.delete(
+        `http://localhost:8000/folders/${folderSelected.id}`,
+        {
+          headers: { Authorization: `Bearer ${currentUser || ""}` },
+        }
+      );
+      let route = router.asPath;
+      router.replace(route);
+      isSuccessDelete(true);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const renameFolder = async () => {
+    isRenameClicked(true);
+    isSuccessDelete(true);
+  };
+  return (
+    <div
+      className=" bg-indigo-500"
+      style={{
+        position: "fixed",
+        top: y,
+        left: x,
+        minHeight: "30vh",
+        minWidth: "10vw",
+        borderRadius: 10,
+      }}
+    >
+      <div className=" w-100 h-100 flex flex-col justify-center m-2 ">
+        <button
+          onClick={renameFolder}
+          className="  text-white text-center flex justify-evenly border border-solid border-white rounded hover:bg-indigo-600 hover:text-white transition-colors duration-300 mt-1"
+        >
+          Rename
+          <div className="mt-1">
+            <BiRename />
+          </div>
+        </button>
+        <button
+          onClick={deleteFolder}
+          className=" text-white text-center flex justify-evenly border border-solid border-white rounded hover:bg-indigo-600 hover:text-white transition-colors duration-300 mt-1"
+        >
+          Delete
+          <div className="mt-1">
+            <HiTrash />
+          </div>
+        </button>
+      </div>
+    </div>
+  );
+};
+export default function Home({ allFolders, params, currentUser }) {
   debugger;
   console.log("getAuthorizationHeader()", getAuthorizationHeader());
   console.log("Home", process.env.customKey);
   console.log("params", params);
   const router = useRouter();
   const [toggle, setToggle] = useState(false);
+  const [toggle1, setToggle1] = useState(false);
   const [inputValue, setInputvalue] = useState("");
+  const [folderSelected, setFolderSelected] = useState(null);
+  const [mousePosition, setMousePosition] = useState({ x: null, y: null });
   console.log("router", router);
   async function createNewFolder() {
     let payload = {
@@ -52,12 +119,42 @@ export default function Home({ allFolders, params }) {
       .then((response) => console.log("response", response))
       .catch((error) => console.log("error", error));
   }
+  async function renameFunction() {
+    let payload = {
+      name: inputValue,
+      id: folderSelected.id,
+      parentId: allFolders?.id,
+    };
+    const axios = require("axios");
+    let res = await axios
+      .put(process.env.baseUrl + "/folders", payload, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((response) => {
+        let route = router.asPath;
+        router.replace(route);
+        setToggle1(false);
+      })
+      .catch((error) => console.log("error", error));
+  }
   if (router.isFallback) return <h1>Loading ....</h1>;
-  const onFolderClick = (item) => {
-    let route = router.asPath + "/" + item.name;
-    router.replace(route);
+  const onFolderClick = (e, item) => {
+    if (e.type === "click") {
+      let route = router.asPath + "/" + item.name;
+      router.replace(route);
+    } else if (e.type === "contextmenu") {
+      e.preventDefault();
+      setMousePosition({ x: e.clientX, y: e.clientY });
+      setFolderSelected(item);
+      setInputvalue(item.className);
+    }
   };
-
+  useEffect(() => {
+    setMousePosition({ x: null, y: null });
+  }, []);
+  const isSuccessDelete = () => {
+    setMousePosition({ x: null, y: null });
+  };
   return (
     <div className="bg-gray-300 m-4 " style={{ height: "100vh" }}>
       <Header />
@@ -117,11 +214,56 @@ export default function Home({ allFolders, params }) {
                 </div>
               </div>
             </Modal>
+            <Modal
+              toggle={toggle1}
+              doToggle={() => setToggle1((prev) => !prev)}
+              title={"Folder Name"}
+            >
+              <div>
+                <input
+                  placeholder={inputValue}
+                  value={inputValue}
+                  onChange={(e) => setInputvalue(e.target.value)}
+                ></input>
+
+                <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
+                  <button
+                    className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button"
+                    // onClick={() => doToggle(true)}
+                  >
+                    Close
+                  </button>
+                  <button
+                    className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button"
+                    onClick={() => renameFunction()}
+                  >
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </Modal>
           </div>
         </div>
       </div>
       <div className="container mx-auto">
         <MainComponent allFolders={allFolders} onFolderClick={onFolderClick} />
+      </div>
+      <div>
+        {/* other components */}
+        {mousePosition.x !== null && mousePosition.y !== null && (
+          <RenameModal
+            x={mousePosition.x}
+            y={mousePosition.y}
+            currentUser={currentUser}
+            folderSelected={folderSelected}
+            isSuccessDelete={isSuccessDelete}
+            isRenameClicked={() => {
+              setToggle1(true);
+            }}
+          />
+        )}
       </div>
     </div>
   );
