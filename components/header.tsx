@@ -11,7 +11,8 @@ export default function Header() {
   const [jwt, setJwt] = useState(null);
   const { login } = useLogin();
   const router = useRouter();
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
     if (!username || !password) {
       alert("Please enter information");
     } else {

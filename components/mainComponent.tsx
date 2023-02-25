@@ -1,7 +1,6 @@
 import React from "react";
 import { FcFolder } from "react-icons/fc";
 export default function MainComponent({ allFolders, onFolderClick }) {
-  console.log("allFolders", allFolders);
   const { folders } = allFolders;
   const showFolders = () => {
     if (folders) {

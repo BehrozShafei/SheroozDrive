@@ -95,17 +95,12 @@ const RenameModal = ({
   );
 };
 export default function Home({ allFolders, params, currentUser }) {
-  debugger;
-  console.log("getAuthorizationHeader()", getAuthorizationHeader());
-  console.log("Home", process.env.customKey);
-  console.log("params", params);
   const router = useRouter();
   const [toggle, setToggle] = useState(false);
   const [toggle1, setToggle1] = useState(false);
   const [inputValue, setInputvalue] = useState("");
   const [folderSelected, setFolderSelected] = useState(null);
   const [mousePosition, setMousePosition] = useState({ x: null, y: null });
-  console.log("router", router);
   async function createNewFolder() {
     let payload = {
       name: inputValue,
