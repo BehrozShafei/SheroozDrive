@@ -9,6 +9,7 @@ import cookie from "cookie";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { getAuthorizationHeader } from "../../utils/getAuthorizationHeader";
+import UploadModal from "./uploadModal";
 export const getServerSideProps = async ({ params, req }) => {
   console.log("params1", params);
   const currentUser = cookie.parse(req.headers.cookie || "").currentUser;
@@ -97,7 +98,8 @@ const RenameModal = ({
 export default function Home({ allFolders, params, currentUser }) {
   const router = useRouter();
   const [toggle, setToggle] = useState(false);
-  const [toggle1, setToggle1] = useState(false);
+  const [toggleRename, setToggleRename] = useState(false);
+  const [toggleUpload, setToggleUpdate] = useState(false);
   const [inputValue, setInputvalue] = useState("");
   const [folderSelected, setFolderSelected] = useState(null);
   const [mousePosition, setMousePosition] = useState({ x: null, y: null });
@@ -128,7 +130,7 @@ export default function Home({ allFolders, params, currentUser }) {
       .then((response) => {
         let route = router.asPath;
         router.replace(route);
-        setToggle1(false);
+        setToggleRename(false);
       })
       .catch((error) => console.log("error", error));
   }
@@ -155,7 +157,7 @@ export default function Home({ allFolders, params, currentUser }) {
       <Header />
       <div className="grid grid-cols-7">
         <div className="col-span-2  bg-indigo-500"></div>
-        <div className="flex justify-center items-center bg-indigo-500 container mx-auto col-span-5  grid grid-cols-6 py-3">
+        <div className=" justify-center items-center bg-indigo-500 container mx-auto col-span-5  grid grid-cols-6 py-3">
           <button
             onClick={() => setToggle((prev) => !prev)}
             className="p-1 lg:mx-5 lg:px-2 text-white text-center flex justify-evenly border border-solid border-white rounded hover:bg-indigo-600 hover:text-white transition-colors duration-300 mt-1"
@@ -165,7 +167,11 @@ export default function Home({ allFolders, params, currentUser }) {
             </div>
             New Folder
           </button>
-          <button className="p-1 lg:mx-5 lg:px-2 text-white text-center flex justify-evenly border border-solid border-white rounded hover:bg-indigo-600 hover:text-white transition-colors duration-300 mt-1">
+
+          <button
+            onClick={() => setToggleUpdate((prev) => !prev)}
+            className="p-1 lg:mx-5 lg:px-2 text-white text-center flex justify-evenly border border-solid border-white rounded hover:bg-indigo-600 hover:text-white transition-colors duration-300 mt-1"
+          >
             <div className="mt-1">
               <HiOutlineUpload />
             </div>
@@ -210,8 +216,8 @@ export default function Home({ allFolders, params, currentUser }) {
               </div>
             </Modal>
             <Modal
-              toggle={toggle1}
-              doToggle={() => setToggle1((prev) => !prev)}
+              toggle={toggleRename}
+              doToggle={() => setToggleRename((prev) => !prev)}
               title={"Folder Name"}
             >
               <div>
@@ -239,6 +245,13 @@ export default function Home({ allFolders, params, currentUser }) {
                 </div>
               </div>
             </Modal>
+            <Modal
+              toggle={toggleUpload}
+              doToggle={() => setToggleUpload((prev) => !prev)}
+              title={"upload file"}
+            >
+              <UploadModal allFolders={allFolders} />
+            </Modal>
           </div>
         </div>
       </div>
@@ -255,7 +268,7 @@ export default function Home({ allFolders, params, currentUser }) {
             folderSelected={folderSelected}
             isSuccessDelete={isSuccessDelete}
             isRenameClicked={() => {
-              setToggle1(true);
+              setToggleRename(true);
             }}
           />
         )}
